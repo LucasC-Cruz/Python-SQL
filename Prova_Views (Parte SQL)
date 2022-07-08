@@ -1,0 +1,36 @@
+Create table produtos (nome varchar(30),
+                        preco int, 
+                        descricao varchar(50), 
+                        categoria int, 
+                        id_produto int);
+                        
+ Create table Usuario (nome varchar(30),
+                       email varchar(50), 
+                       id_usuario int);
+                       
+ Create table carrinho (id_relacional int AUTO_INCREMENT primary key, /*transforma em AUTO INCREMENT dps */
+                        id_usuario int, 
+                        id_produto int); 
+                        
+ insert into produtos (nome, preco, descricao, categoria, id_produto) 
+ values ('agenda', 5, 'agenda', 1, 3),
+ ('pvc', 12, 'tubo', 2, 4), 
+ ('martelo', 30, 'martelo', 2, 5); 
+ 
+ insert into Usuario (nome, email, id_usuario) 
+ values('lucas', 'abc@gmail.com', 1), 
+ ('gabriel', 'pei@gmail.com', 2), 
+ ('juquinha', 'hiu@gmail.com', 3); 
+ 
+ insert into carrinho(id_usuario, id_produto) 
+ values(1, 1), 
+ (1, 2),
+ (1, 3),
+ (2, 1), 
+ (2, 2);
+ 
+ select carrinho.id_usuario, carrinho.id_produto, produtos.nome, produtos.categoria 
+ from produtos
+ right join carrinho on produtos.id_produto = carrinho.id_produto
+
+
