@@ -1,0 +1,76 @@
+import mysql.connector
+from mysql.connector import Error
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton
+
+con = mysql.connector.connect(host = 'localhost', database = 'lucas_db', user = 'user', password ='senha')
+
+
+if con.is_connected():
+    db_info = con.get_server_info()
+    print("conectado ao servidor mysql versão", db_info)
+    cursor = con.cursor()
+    cursor.execute("select database();")
+    linha1 = cursor.fetchone()
+    print("Conectando ao banco de dados ", linha1)
+
+
+    class Janela(QMainWindow):
+        def __init__(self):
+            super().__init__()
+            self.botao = QPushButton('Exibir', self)
+            self.botao.move(50,100)
+            self.botao.resize(130, 50)
+            self.botao.clicked.connect(self.ExibirCarrinho)
+
+            self.botao2 = QPushButton('Criar Carrinho', self)
+            self.botao2.move(50, 50)
+            self.botao2.resize(130, 50)
+            self.botao2.clicked.connect(self.CriarCarrinho)
+
+
+
+        def CriarCarrinho(self):
+            try:
+                print("Iniciando rotina para cadastro de produtos no carrinho")
+                print("Entre com os dados conforme solicitado")
+                id_u = input('Seu id de usuário: ')
+                id_p = input('Id produto: ')
+                dados = (id_u +',' + id_p)
+                sql = """ insert into carrinho(id_usuario, id_produto) 
+                            values ("""
+                inserir_dados = sql + dados
+                cursor.execute(inserir_dados)
+                con.commit()
+                print(cursor.rowcount, "Produtos inseridos na tabela!")
+            except Error as erro:
+                print(f"Falha ao criar o seu carrinho: {erro}")
+            finally:
+                if (con.is_connected()):
+                    con.close()
+                    print("conexão ao MySQL finalizada")
+
+            
+
+        def ExibirCarrinho(self):
+            try:
+                consulta = """select carrinho.id_usuario, carrinho.id_produto, produtos.nome, produtos.categoria 
+                              from produtos
+                              right join carrinho on produtos.id_produto = carrinho.id_produto
+                """
+                cursor.execute(consulta)
+                linha2 = cursor.fetchall()
+
+                for linha in linha2:
+                    print("id_usuario  // id_produto  // nome //")
+                    print(f"    {linha[0]}             {linha[1]}           {linha[2]}\n")
+
+            except Error as erro:
+                print(f"Falha ao exibir dados do carrinho: {erro}")
+
+            finally:
+                if (con.is_connect()):
+                    con.close()
+                    print("Conexão ao MySQL finalizada")
+
+app = QApplication([])
+j = Janela()
