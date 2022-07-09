@@ -1,0 +1,131 @@
+import mysql.connector
+from mysql.connector import Error
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton
+
+
+
+con = mysql.connector.connect(host = 'localhost', database = 'lucas_db', user = 'user', password ='senha')
+
+
+if con.is_connected:
+    try: 
+        db_info = con.get_server_info()
+        print("conectado ao servidor mysql versão", db_info)
+        cursor = con.cursor()
+        cursor.execute("Select database();")
+        resultado = cursor.fetchone()  #O método fetchall é responsável por pegar todos os dados resultados da query
+        print("Conectando ao banco de dados ", resultado)
+    
+
+        class Janela(QMainWindow):
+            def __init__(self):
+                super().__init__()
+                self.botao = QPushButton('Cadastrar Usuario', self)
+                self.botao.move(50,200)
+                self.botao.resize(130, 50)
+                self.botao.clicked.connect(self.CadastroDeUsuario)
+
+                self.botao2 = QPushButton('Editar', self)
+                self.botao2.move(50, 150)
+                self.botao2.resize(130, 50)
+                self.botao2.clicked.connect(self.Editar)
+
+                self.botao3 = QPushButton('Remover', self)
+                self.botao3.move(50, 100)
+                self.botao3.resize(130, 50)
+                self.botao3.clicked.connect(self.Remover)
+
+                self.botao4 = QPushButton('Listar', self)
+                self.botao4.move(50, 50)
+                self.botao4.resize(130, 50)
+                self.botao4.clicked.connect(self.Listar)
+                
+
+        # Cadastro do Usuario
+            def CadastroDeUsuario(self):
+                contador = 0
+                try:
+                    with con.cursor() as cursor:
+                        sql = ("INSERT INTO usuario (nome, email, senha, data_criacao)"
+            "VALUES (%s, %s, %s, %s)")
+
+                        num = int(input("Quantas vezes deseja colocar a info? "))
+                        while contador < num:
+                            contador += 1
+                            a = input("Nome: ")
+                            b = input("Email: ")
+                            c = input("Senha: ")# o certo é fazer todo um tratamento aqui mas enfim a preguiça
+                            d = input("Data de Criação: ")
+                            info = a, b, c, d
+                            cursor.execute(sql,(info))
+                            con.commit()
+                except Error as erro:
+                    print(f"Falha no cadastro do usuário {erro}")
+
+                if (con.is_connected()):
+                    con.close()
+                    cursor.close()
+                    print("Conexão ao MySQL finalizada")
+
+            
+            def Editar(self, nome):
+                try:
+                    with con.cursor() as cursor:
+                        sql = ("UPDATE usuario SET nome = %s, email = %s, senha = %s, data_criacao = %s" 
+                    f"Where nome like %{nome}")
+                    cursor.execute(sql)
+                    con.commit()
+                except Error as erro:
+                    print(f"Falha na atualização do usuário {erro}")
+
+                if (con.is_connected()):
+                    con.close()
+                    cursor.close()
+                    print("Conexão ao MySQL finalizada")
+                    
+
+
+            def Remover(self, nome):
+                try:
+                    with con.cursor() as cursor:
+                        sql = (f"DELETE * FROM usuario WHERE nome like %{nome}")
+                        cursor.execute(sql)
+                        con.commit()
+                except Error as erro:
+                    print(f"Falha no deletar do usuário {erro}")
+
+                if (con.is_connected()):
+                    con.close()
+                    cursor.close()
+                    print("Conexão ao MySQL finalizada")
+            
+            def Listar(self):
+                try:
+                    with con.cursor() as cursor:
+                        sql = ("SELECT * FROM usuario")
+                        cursor.execute(sql)
+                        rows = cursor.fetchall()
+                        for linha in rows:
+                            print(f"{linha}")
+                except Error as erro:
+                    print(f"Falha na listagem de usuários {erro}")
+
+                if (con.is_connected()):
+                    con.close()
+                    cursor.close()
+                    print("Conexão ao MySQL finalizada")
+
+                    
+
+
+    except Error as erro:
+        print(f"Falha ao conectar ao banco de dados: {erro}")
+    if (con.is_connected()):
+            con.close()
+            cursor.close()
+            print("Conexão ao MySQL finalizada")
+
+app = QApplication([])
+j = Janela()
+
+        
