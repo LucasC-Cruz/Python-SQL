@@ -1,0 +1,119 @@
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#define STACK_SIZE 1001
+int diamonds = 0;
+
+
+typedef struct pilha{
+    int i;
+    char pilha[STACK_SIZE];
+} Pilha;
+
+
+Pilha init(){
+    Pilha pilha;
+    int i;
+
+    pilha.i = 0;
+    for (i=0; i<STACK_SIZE-1; i++){
+        pilha.pilha[i] = '0';
+    } 
+    return pilha;
+}
+
+void clear_pilha(Pilha* pilha){
+    int i;
+
+    for (i=0; i<STACK_SIZE-1; i++){
+        pilha->pilha[i] = '0';
+    } 
+}
+
+int isFull(Pilha* pilha){
+    return pilha->i >= STACK_SIZE-1;
+}
+
+int isEmpty(Pilha* pilha){
+    return pilha->i==0;
+}
+
+int pop(Pilha* pilha){
+    if(!isEmpty(pilha)){
+        pilha->pilha[pilha->i] = '0';
+        pilha->i--;
+    }
+    else{
+        puts("Pilha vazia!");
+        return -1;
+    }
+    return 1;
+}
+
+void push(Pilha* pilha, char data){
+    if(isFull(pilha)){
+        puts("Pilha cheia!");
+        //return -1;
+    }
+    
+    if(data == '>'){
+        if (!isEmpty(pilha)){
+            int aux = pilha->i-1;
+            if (pilha->pilha[aux] == '<'){
+                diamonds++;
+                pop(pilha);
+            }
+            else{
+            pilha->pilha[pilha->i] = data;
+            pilha->i++;
+            }
+        }
+        /*
+        else{
+            puts("Tava vazia, mas adicionei!");
+            pilha->pilha[pilha->i] = data;
+            pilha->i++;
+            
+        }
+            */
+    }
+
+    else if (data == '<'){
+        
+        pilha->pilha[pilha->i] = data;
+        pilha->i++;
+    }
+
+    else if (data == '0'){
+        diamonds = 0;
+    }
+
+    //return 1;
+}
+
+
+int main() {
+    Pilha pilha = init();
+    int loops;
+    
+    char data[1000];
+
+    scanf("%d", &loops);
+
+    while(loops > 0){
+        int i = 0;
+        scanf("%s", data);
+
+        while(data[i] != '\0'){
+            push(&pilha, data[i]);
+            i++;
+        }
+        loops--;
+        printf("%d\n", diamonds);
+        diamonds = 0;
+        clear_pilha(&pilha);
+    }
+    return 0;
+}
